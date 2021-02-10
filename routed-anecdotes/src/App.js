@@ -9,6 +9,7 @@ import {
   useRouteMatch,
   useHistory
 } from 'react-router-dom'
+import { useField } from './hooks'
 
 //This was replaced by Router-Switch-Route implementation
 /* const Menu = () => {
@@ -73,21 +74,32 @@ const Footer = () => (
 
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const { reset: reset1, ...content } = useField('text')
+  const { reset: reset2, ...author } = useField('text')
+  const { reset: reset3, ...info } = useField('text')
+
+  console.log('content', content)
+  console.log('author', author)
+  console.log('info', info)
+
   const history = useHistory()
 
   const handleSubmit = (e) => {
 
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     history.push('/')
+  }
+
+  const handleReset = () => {
+    reset1()
+    reset2()
+    reset3()
   }
 
   return (
@@ -96,17 +108,17 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...content} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...author} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
+          <input {...info} />
         </div>
-        <button>create</button>
+        <button>create</button><button type='button' onClick={handleReset}>reset</button>
       </form>
     </div>
   )
@@ -143,9 +155,6 @@ const App = () => {
 
   const [notification, setNotification] = useState('')
 
-
-
-
   const addNew = (anecdote) => {
     anecdote.id = (Math.random() * 10000).toFixed(0)
     setAnecdotes(anecdotes.concat(anecdote))
@@ -180,7 +189,6 @@ const App = () => {
     : null
 
   return (
-
     <div>
       <h1>Software anecdotes</h1>
       <div>
@@ -203,16 +211,8 @@ const App = () => {
           <AnecdoteList anecdotes={anecdotes} />
         </Route>
       </Switch>
-
-
-      {/* <Menu />
-        <AnecdoteList anecdotes={anecdotes} />
-        <About />
-        <CreateNew addNew={addNew} /> */}
       <Footer />
     </div>
-
-
   )
 }
 
