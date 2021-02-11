@@ -3,13 +3,15 @@ import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension'
 //import anecdoteReducer, {initializeAnecdotes} from './reducers/anecdoteReducer'
 import notificationReducer from './reducers/notificationReducer'
+import blogReducer from './reducers/blogReducer'
+import userReducer from './reducers/userReducer'
 //import filterReducer from './reducers/filterReducer'
 //import blogService from './services/blogs'
 
 const reducer = combineReducers({
-  //anecdotes: anecdoteReducer,
+  blogs: blogReducer,
   notification: notificationReducer,
-  //filter: filterReducer
+  user: userReducer
 })
 
 const store = createStore(

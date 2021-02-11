@@ -1,6 +1,7 @@
 /* eslint-disable linebreak-style */
 import React, { useState } from 'react'
-const Blog = ({ blog, likeBlog, user, removeBlog }) => {
+
+const Blog = ({ blog, likeBlog, user, remove }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -23,7 +24,7 @@ const Blog = ({ blog, likeBlog, user, removeBlog }) => {
 
   const handleRemoveClick = (id) => {
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      removeBlog(id)
+      remove(id)
     }
   }
   return (

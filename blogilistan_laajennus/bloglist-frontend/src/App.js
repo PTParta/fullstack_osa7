@@ -6,34 +6,52 @@ import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { initializeBlogs, createBlog, removeBlog, incrementVotesOf } from './reducers/blogReducer'
+import { initializeUser } from './reducers/userReducer'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  //const [blogs, setBlogs] = useState([])
   //const [errorMessage, setErrorMessage] = useState(null)
   //const [notificationMessage, setNotificationMessage] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  //const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
   const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(initializeBlogs())
+  }, [dispatch])
+
+  const blogs = useSelector(state => {
+    return state.blogs
+    /* if (state.filter === '') {
+      return state.anecdotes
+    } else {
+      return state.anecdotes.filter(anecdote => anecdote.content.toLowerCase().includes(state.filter.toLowerCase()))
+    } */
+  })
+
+  const user = useSelector(state => {
+    return state.user
+  })
+
+
 
   /* useEffect(() => {
     dispatch(initializeAnecdotes())
   }, [dispatch]) */
 
-  useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs.sort((a, b) => b.likes - a.likes))
-    )
-  }, [])
+
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      dispatch(initializeUser(user))
+      //setUser(user)
       blogService.setToken(user.token)
     }
   }, [])
@@ -51,15 +69,18 @@ const App = () => {
         'loggedBlogAppUser', JSON.stringify(user)
       )
       blogService.setToken(user.token)
-      setUser(user)
+
+      dispatch(initializeUser(user))
+      //setUser(user)
       setUsername('')
       setPassword('')
     }
     catch (exception) {
-      setErrorMessage('wrong username or password')
+      dispatch(setNotification('wrong username or password', 5))
+      /* setErrorMessage('wrong username or password')
       setTimeout(() => {
         setErrorMessage(null)
-      }, 5000)
+      }, 5000) */
     }
   }
 
@@ -67,84 +88,75 @@ const App = () => {
     event.preventDefault()
     console.log('handling logout')
     window.localStorage.clear()
-    setUser(null)
+    dispatch(initializeUser(''))
+    //setUser(null)
   }
 
-  const addBlog = (blogObject) => {
-    try {
-      blogFormRef.current.toggleVisibility()
-      blogService
-        .create(blogObject)
-        .then(returnedBlog => {
-          returnedBlog.user = user
-          setBlogs(blogs.concat(returnedBlog).sort((a, b) => b.likes - a.likes))
-        })
-      /* setNotificationMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000) */
-      dispatch(setNotification(`a new blog ${blogObject.title} by ${blogObject.author} added`, 5))
-    } catch (exception) {
-      dispatch(setNotification('an error occurred', 5))
-      /* setErrorMessage('an error occurred')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000) */
-    }
-  }
+  const create = (blogObject) => {
+    //try {
+    blogFormRef.current.toggleVisibility()
+    /* blogService
+      .create(blogObject)
+      .then(returnedBlog => {
+        returnedBlog.user = user */
+    //setBlogs(blogs.concat(returnedBlog).sort((a, b) => b.likes - a.likes))
+    blogObject.user = user
+    console.log('user = ', user)
+    console.log('blogObject = ', blogObject)
+    dispatch(createBlog(blogObject))
+    //  })
+    dispatch(setNotification(`a new blog ${blogObject.title} by ${blogObject.author} added`, 5))
+  } /* catch (exception) {
+      dispatch(setNotification('an error occurred', 5)) */
+
 
   const likeBlog = (id) => {
     const blog = blogs.find(b => b.id === id)
     //console.log('blog before like')
-    //console.log(blog)
+    console.log('liked blog', blog)
     const likedBlog = { ...blog, likes: blog.likes + 1 }
     //console.log('blog after like')
     //console.log(likedBlog)
-
-    blogService
+    dispatch(incrementVotesOf(id, likedBlog))
+    /* blogService
       .update(id, likedBlog)
-      .then(returnedBlog => {
-        //console.log('returned blog')
-        //console.log(returnedBlog)
-        returnedBlog.user = likedBlog.user
-        //console.log(returnedBlog)
-        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog).sort((a, b) => b.likes - a.likes))
-      })
-      .catch(() => {
-        dispatch(setNotification(`Blog '${blog.title}' was already removed from server`, 5))
-        /* setErrorMessage(
-          `Blog '${blog.title}' was already removed from server`
-        )
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000) */
-      })
+      .then(returnedBlog => { */
+    //console.log('returned blog')
+    //console.log(returnedBlog)
+    //returnedBlog.user = likedBlog.user
+    //console.log(returnedBlog)
+    //setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog).sort((a, b) => b.likes - a.likes))
+    /*  })
+     .catch(() => {
+       dispatch(setNotification(`Blog '${blog.title}' was already removed from server`, 5)) */
+    /* setErrorMessage(
+      `Blog '${blog.title}' was already removed from server`
+    )
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000) */
+    //})
   }
 
-  const removeBlog = (id) => {
+  //Tee remove reduxilla alla
+
+  const remove = (id) => {
     console.log('removing blog with an id of: ', id)
 
     const blogToBeRemoved = blogs.filter(blog => blog.id === id)
     console.log('blogToBeRemoved', blogToBeRemoved)
-    try {
+    dispatch(removeBlog(blogToBeRemoved[0]))
+    dispatch(setNotification(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`, 5))
+    /* try {
       blogService
         .remove(id)
         .then(() => {
           setBlogs(blogs.filter(blog => blog.id !== id))
         })
-      /* setNotificationMessage(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`)
-      setTimeout(() => {
-        setNotificationMessage(null)
-      }, 5000) */
       dispatch(setNotification(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`, 5))
     } catch (exception) {
       dispatch(setNotification('an error occurred', 5))
-      /* setErrorMessage('an error occurred')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000) */
-    }
-
+    } */
   }
 
   const loginForm = () => (
@@ -173,7 +185,7 @@ const App = () => {
         </div>
         <button id='login-button' type='submit'>
           login
-          </button>
+        </button>
       </form>
     </div>
   )
@@ -191,12 +203,12 @@ const App = () => {
       </table>
 
       <Togglable buttonLabel='new note' ref={blogFormRef}>
-        <BlogForm user={user} createBlog={addBlog} /* setErrorMessage={setErrorMessage} */ removeBlog={removeBlog}
+        <BlogForm user={user} create={create} /* removeBlog={removeBlog} */
         />
       </Togglable>
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} user={user} removeBlog={removeBlog} />
+        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} user={user} remove={remove} />
       )}
     </div>
   )
@@ -206,7 +218,7 @@ const App = () => {
       {/*  <Notification message={errorMessage} />
       <Notification message={notificationMessage} /> */}
       <Notification />
-      {user === null ?
+      {user === '' ?
         loginForm() :
         <div>
           {(blogsListed())}

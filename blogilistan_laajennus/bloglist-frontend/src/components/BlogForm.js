@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer'
+//import { createBlog } from '../reducers/blogReducer'
 
-const BlogForm = ({ createBlog, user, /* setErrorMessage */ }) => {
+const BlogForm = ({ create, user }) => {
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
@@ -16,11 +17,7 @@ const BlogForm = ({ createBlog, user, /* setErrorMessage */ }) => {
       setNewTitle('')
       setNewAuthor('')
       setNewUrl('')
-      //setErrorMessage('fill all the fields when creating a new blog')
       dispatch(setNotification('fill all the fields when creating a new blog', 5))
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
       return
     }
     const newBlog = {
@@ -30,7 +27,7 @@ const BlogForm = ({ createBlog, user, /* setErrorMessage */ }) => {
       likes: 0,
       user: user.id
     }
-    createBlog(newBlog)
+    create(newBlog)
     setNewTitle('')
     setNewAuthor('')
     setNewUrl('')
@@ -80,8 +77,7 @@ const BlogForm = ({ createBlog, user, /* setErrorMessage */ }) => {
 
 BlogForm.propTypes = {
   createBlog: PropTypes.func.isRequired,
-  user: PropTypes.object.isRequired,
-  //setErrorMessage: PropTypes.func.isRequired
+  user: PropTypes.object.isRequired
 }
 
 export default BlogForm
