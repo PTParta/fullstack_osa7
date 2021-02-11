@@ -6,11 +6,12 @@ import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [notificationMessage, setNotificationMessage] = useState(null)
+  //const [errorMessage, setErrorMessage] = useState(null)
+  //const [notificationMessage, setNotificationMessage] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -18,9 +19,9 @@ const App = () => {
 
   const dispatch = useDispatch()
 
-  useEffect(() => {
+  /* useEffect(() => {
     dispatch(initializeAnecdotes())
-  }, [dispatch])
+  }, [dispatch]) */
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -110,12 +111,13 @@ const App = () => {
         setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog).sort((a, b) => b.likes - a.likes))
       })
       .catch(() => {
-        setErrorMessage(
+        dispatch(setNotification(`Blog '${blog.title}' was already removed from server`, 5))
+        /* setErrorMessage(
           `Blog '${blog.title}' was already removed from server`
         )
         setTimeout(() => {
           setErrorMessage(null)
-        }, 5000)
+        }, 5000) */
       })
   }
 
@@ -130,15 +132,17 @@ const App = () => {
         .then(() => {
           setBlogs(blogs.filter(blog => blog.id !== id))
         })
-      setNotificationMessage(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`)
+      /* setNotificationMessage(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`)
       setTimeout(() => {
         setNotificationMessage(null)
-      }, 5000)
+      }, 5000) */
+      dispatch(setNotification(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`, 5))
     } catch (exception) {
-      setErrorMessage('an error occurred')
+      dispatch(setNotification('an error occurred', 5))
+      /* setErrorMessage('an error occurred')
       setTimeout(() => {
         setErrorMessage(null)
-      }, 5000)
+      }, 5000) */
     }
 
   }
@@ -187,7 +191,7 @@ const App = () => {
       </table>
 
       <Togglable buttonLabel='new note' ref={blogFormRef}>
-        <BlogForm user={user} createBlog={addBlog} setErrorMessage={setErrorMessage} removeBlog={removeBlog}
+        <BlogForm user={user} createBlog={addBlog} /* setErrorMessage={setErrorMessage} */ removeBlog={removeBlog}
         />
       </Togglable>
 
@@ -199,9 +203,9 @@ const App = () => {
 
   return (
     <div>
-      <Notification message={errorMessage} />
-      <Notification message={notificationMessage} />
-
+      {/*  <Notification message={errorMessage} />
+      <Notification message={notificationMessage} /> */}
+      <Notification />
       {user === null ?
         loginForm() :
         <div>
