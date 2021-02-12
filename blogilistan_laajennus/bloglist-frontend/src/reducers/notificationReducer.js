@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 const notificationAtStart = ''
 
 const notificationReducer = (state = notificationAtStart, action) => {

@@ -1,5 +1,6 @@
 /* eslint-disable linebreak-style */
 import React, { useState } from 'react'
+import { Link, Switch, Route, useRouteMatch } from 'react-router-dom'
 
 const Blog = ({ blog, likeBlog, user, remove }) => {
   const blogStyle = {
@@ -27,23 +28,55 @@ const Blog = ({ blog, likeBlog, user, remove }) => {
       remove(id)
     }
   }
+
   return (
-    < div style={blogStyle} className='blog'>
-      <div id='blogShortView' style={hideWhenVisible} >
-        <div className='blogTitleAndAuthor'>{blog.title} {blog.author} </div>
-        <button onClick={handleClick}> view</button >
-      </div>
-      <div style={showWhenVisible} className='blogWhole'>
-        {blog.title} {blog.author}<button onClick={handleClick}> hide</button >
-        <div>{blog.url}</div>
-        <div>likes {blog.likes} <button onClick={() => handleLikeClick(blog.id)}>like</button> </div>
-        <div> {blog.user.name}</div>
-        {user.username === blog.user.username ?
-          <div><button onClick={() => handleRemoveClick(blog.id)}>remove</button></div> :
-          <div></div>}
-      </div>
-    </div >
+
+    <div>
+      < div style={blogStyle} className='blog'>
+        <div id='blogShortView' style={hideWhenVisible} >
+          <div className='blogTitleAndAuthor'>
+            <Link to={`/blogs/${blog.id}`}>{blog.title}      </Link>
+            {blog.author}
+          </div>
+          {/* <button onClick={handleClick}> view</button > */}
+        </div>
+        <div style={showWhenVisible} className='blogWhole'>
+          {blog.title} {blog.author}<button onClick={handleClick}> hide</button >
+          <div>{blog.url}</div>
+          <div>likes {blog.likes} <button onClick={() => handleLikeClick(blog.id)}>like</button> </div>
+          <div> {blog.user.name}</div>
+          {user.username === blog.user.username ?
+            <div><button onClick={() => handleRemoveClick(blog.id)}>remove</button></div> :
+            <div></div>}
+        </div>
+      </div >
+    </div>
   )
 }
 
 export default Blog
+
+/*  < Switch >
+       <Route path='/users/:id'>
+         <User user={userMatch} />
+       </Route>
+       <Route path='/users'>
+         <h2>Users</h2>
+         <table>
+           <tbody style={{ textAlign: 'left' }}>
+             <tr>
+               <th></th>
+               <th >blogs created</th>
+             </tr>
+             {users.map(user =>
+               <tr key={user.id}>
+                 <th>
+                   <Link to={`/users/${user.id}`}>{user.name}</Link>
+                 </th>
+                 <th>{user.blogs.length}</th>
+               </tr>
+             )}
+           </tbody>
+         </table>
+       </Route>
+     </Switch > */

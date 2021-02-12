@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import blogService from '../services/blogs'
 
 const blogReducer = (state = [], action) => {
@@ -8,7 +9,7 @@ const blogReducer = (state = [], action) => {
     case 'CREATE_BLOG':
       return [...state, action.data]
 
-    case 'VOTE':
+    case 'VOTE': {
       const id = action.data.id
       const blogToChange = state.find(n => n.id === id)
       const changedBlog = {
@@ -16,7 +17,7 @@ const blogReducer = (state = [], action) => {
         likes: blogToChange.likes + 1
       }
       return state.map(blog => blog.id !== id ? blog : changedBlog).sort((a, b) => b.likes - a.likes)
-
+    }
     case 'INIT_BLOGS':
       return action.data.sort((a, b) => b.likes - a.likes)
 
@@ -59,7 +60,7 @@ export const incrementVotesOf = (id, content) => {
   }
 }
 
-export const initializeBlogs = (blogs) => {
+export const initializeBlogs = () => {
   return async dispatch => {
     const blogs = await blogService.getAll()
     dispatch({

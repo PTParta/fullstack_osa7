@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 const userAtStart = ''
 
 const userReducer = (state = userAtStart, action) => {
@@ -15,8 +16,6 @@ export const initializeUser = (user) => {
       type: 'SET_USER',
       data: user
     })
-
   }
 }
-
 export default userReducer

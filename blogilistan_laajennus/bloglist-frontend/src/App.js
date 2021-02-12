@@ -2,21 +2,28 @@ import React, { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import Users from './components/Users'
 import BlogForm from './components/BlogForm'
+import SingleBlog from './components/SingleBlog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import { setNotification } from './reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeBlogs, createBlog, removeBlog, incrementVotesOf } from './reducers/blogReducer'
 import { initializeUser } from './reducers/userReducer'
+import {
+  //BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  //Redirect,
+  useRouteMatch,
+  //useHistory
+} from 'react-router-dom'
 
 const App = () => {
-  //const [blogs, setBlogs] = useState([])
-  //const [errorMessage, setErrorMessage] = useState(null)
-  //const [notificationMessage, setNotificationMessage] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  //const [user, setUser] = useState(null)
   const blogFormRef = useRef()
 
   const dispatch = useDispatch()
@@ -27,31 +34,17 @@ const App = () => {
 
   const blogs = useSelector(state => {
     return state.blogs
-    /* if (state.filter === '') {
-      return state.anecdotes
-    } else {
-      return state.anecdotes.filter(anecdote => anecdote.content.toLowerCase().includes(state.filter.toLowerCase()))
-    } */
   })
 
   const user = useSelector(state => {
     return state.user
   })
 
-
-
-  /* useEffect(() => {
-    dispatch(initializeAnecdotes())
-  }, [dispatch]) */
-
-
-
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       dispatch(initializeUser(user))
-      //setUser(user)
       blogService.setToken(user.token)
     }
   }, [])
@@ -71,16 +64,11 @@ const App = () => {
       blogService.setToken(user.token)
 
       dispatch(initializeUser(user))
-      //setUser(user)
       setUsername('')
       setPassword('')
     }
     catch (exception) {
       dispatch(setNotification('wrong username or password', 5))
-      /* setErrorMessage('wrong username or password')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000) */
     }
   }
 
@@ -89,56 +77,25 @@ const App = () => {
     console.log('handling logout')
     window.localStorage.clear()
     dispatch(initializeUser(''))
-    //setUser(null)
   }
 
   const create = (blogObject) => {
-    //try {
     blogFormRef.current.toggleVisibility()
-    /* blogService
-      .create(blogObject)
-      .then(returnedBlog => {
-        returnedBlog.user = user */
-    //setBlogs(blogs.concat(returnedBlog).sort((a, b) => b.likes - a.likes))
     blogObject.user = user
     console.log('user = ', user)
     console.log('blogObject = ', blogObject)
     dispatch(createBlog(blogObject))
-    //  })
     dispatch(setNotification(`a new blog ${blogObject.title} by ${blogObject.author} added`, 5))
-  } /* catch (exception) {
-      dispatch(setNotification('an error occurred', 5)) */
+  }
 
 
   const likeBlog = (id) => {
     const blog = blogs.find(b => b.id === id)
-    //console.log('blog before like')
     console.log('liked blog', blog)
     const likedBlog = { ...blog, likes: blog.likes + 1 }
-    //console.log('blog after like')
-    //console.log(likedBlog)
     dispatch(incrementVotesOf(id, likedBlog))
-    /* blogService
-      .update(id, likedBlog)
-      .then(returnedBlog => { */
-    //console.log('returned blog')
-    //console.log(returnedBlog)
-    //returnedBlog.user = likedBlog.user
-    //console.log(returnedBlog)
-    //setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog).sort((a, b) => b.likes - a.likes))
-    /*  })
-     .catch(() => {
-       dispatch(setNotification(`Blog '${blog.title}' was already removed from server`, 5)) */
-    /* setErrorMessage(
-      `Blog '${blog.title}' was already removed from server`
-    )
-    setTimeout(() => {
-      setErrorMessage(null)
-    }, 5000) */
-    //})
-  }
 
-  //Tee remove reduxilla alla
+  }
 
   const remove = (id) => {
     console.log('removing blog with an id of: ', id)
@@ -147,16 +104,6 @@ const App = () => {
     console.log('blogToBeRemoved', blogToBeRemoved)
     dispatch(removeBlog(blogToBeRemoved[0]))
     dispatch(setNotification(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`, 5))
-    /* try {
-      blogService
-        .remove(id)
-        .then(() => {
-          setBlogs(blogs.filter(blog => blog.id !== id))
-        })
-      dispatch(setNotification(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`, 5))
-    } catch (exception) {
-      dispatch(setNotification('an error occurred', 5))
-    } */
   }
 
   const loginForm = () => (
@@ -202,27 +149,61 @@ const App = () => {
         </tbody>
       </table>
 
-      <Togglable buttonLabel='new note' ref={blogFormRef}>
-        <BlogForm user={user} create={create} /* removeBlog={removeBlog} */
+      <Togglable buttonLabel='create new' ref={blogFormRef}>
+        <BlogForm user={user} create={create}
         />
       </Togglable>
+      <Switch>
+        <Route path='/blogs/:id'>
+          <SingleBlog blog={blogMatch} likeBlog={likeBlog} user={user} remove={remove}/>
+        </Route>
 
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} likeBlog={likeBlog} user={user} remove={remove} />
-      )}
+
+        <Route path='/'>
+          {blogs.map(blog =>
+            <Blog key={blog.id} blog={blog} likeBlog={likeBlog} user={user} remove={remove} />
+          )}
+        </Route>
+      </Switch>
     </div>
   )
 
+  const padding = {
+    padding: 5
+  }
+
+  const match = useRouteMatch('/blogs/:id')
+
+  console.log('match', match)
+  //console.log('match.params.id', match.params.id)
+  const blogMatch = match
+    ? blogs.find(blog => blog.id === match.params.id)
+    : null
+
   return (
     <div>
-      {/*  <Notification message={errorMessage} />
-      <Notification message={notificationMessage} /> */}
+      <div>
+        <Link style={padding} to='/users'>users</Link>
+        <Link style={padding} to='/blogs'>blogs</Link>
+      </div>
       <Notification />
-      {user === '' ?
+      {/* {user === '' ?
         loginForm() :
         <div>
           {(blogsListed())}
-        </div>}
+        </div>} */}
+      <Switch>
+        <Route path='/users'>
+          <Users />
+        </Route>
+        <Route path='/'>
+          {user === '' ?
+            loginForm() :
+            <div>
+              {(blogsListed())}
+            </div>}
+        </Route>
+      </Switch>
     </div>
   )
 }
