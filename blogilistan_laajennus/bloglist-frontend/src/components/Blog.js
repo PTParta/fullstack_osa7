@@ -32,7 +32,7 @@ const Blog = ({ blog, likeBlog, user, remove }) => {
   return (
 
     <div>
-      < div style={blogStyle} className='blog'>
+      < div /* style={blogStyle} */ className='blog'>
         <div id='blogShortView' style={hideWhenVisible} >
           <div className='blogTitleAndAuthor'>
             <Link to={`/blogs/${blog.id}`}>{blog.title}      </Link>

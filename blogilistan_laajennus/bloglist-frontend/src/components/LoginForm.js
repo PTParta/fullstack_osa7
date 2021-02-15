@@ -5,6 +5,7 @@ import { initializeUser } from '../reducers/userReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer'
 import { Redirect } from 'react-router-dom'
+import { Table, Form, Button } from 'react-bootstrap'
 
 const LoginForm = () => {
 
@@ -46,29 +47,47 @@ const LoginForm = () => {
         <div>
           <h2>Login</h2>
           <form onSubmit={handleLogin}>
-            <div>
-              username
-              <input
-                id='username'
-                type='text'
+            <Form.Group>
+              <Form.Label>username:</Form.Label>
+              <Form.Control
+                type="text"
+                name="username"
                 value={username}
-                name='Username'
                 onChange={({ target }) => setUsername(target.value)}
               />
-            </div>
-            <div>
-              password
-              <input
-                id='password'
-                type='password'
+              <Form.Label>password:</Form.Label>
+              <Form.Control
+                type="password"
                 value={password}
-                name='Password'
                 onChange={({ target }) => setPassword(target.value)}
               />
-            </div>
-            <button id='login-button' type='submit'>
+              <Button variant="primary" type="submit">
+                login
+              </Button>
+            </Form.Group>
+            {/* <div>
+                username
+              <input
+                  id='username'
+                  type='text'
+                  value={username}
+                  name='Username'
+                  onChange={({ target }) => setUsername(target.value)}
+                />
+              </div>
+              <div>
+                password
+              <input
+                  id='password'
+                  type='password'
+                  value={password}
+                  name='Password'
+                  onChange={({ target }) => setPassword(target.value)}
+                />
+              </div> */}
+            {/* <button id='login-button' type='submit'>
               login
-            </button>
+            </button> */}
           </form>
         </div>}
     </div>

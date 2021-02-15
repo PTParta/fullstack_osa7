@@ -22,6 +22,7 @@ import {
   Redirect,
   //useHistory
 } from 'react-router-dom'
+import { Table, Navbar, Nav } from 'react-bootstrap'
 
 const App = () => {
   const blogFormRef = useRef()
@@ -104,9 +105,16 @@ const App = () => {
 
 
         <Route path='/'>
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} likeBlog={likeBlog} user={user} remove={remove} />
-          )}
+          <Table striped>
+            <tbody>
+              {blogs.map(blog =>
+                <tr key={blog.id}>
+                  <td><Blog blog={blog} likeBlog={likeBlog} user={user} remove={remove} /></td>
+                  <td>{blog.author}</td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
         </Route>
       </Switch>
     </div>
@@ -124,8 +132,36 @@ const App = () => {
     : null
 
   return (
-    <div>
-      <div>
+    <div className="container">
+
+
+      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="mr-auto">
+            {/* <Nav.Link href="#" as="span">
+              <Link style={padding} to="/">home</Link>
+            </Nav.Link> */}
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/users">users</Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              <Link style={padding} to="/blogs">blogs</Link>
+            </Nav.Link>
+            <Nav.Link href="#" as="span">
+              {user
+                ? <div>
+                  <em>{user.name} logged in      </em>
+                  <button onClick={handleLogout}>logout</button>
+                </div>
+                : <Link to="/login">login</Link>
+              }
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+
+      {/* <div>
         {user ? <div>
           <Link style={padding} to='/users'>users</Link>
           <Link style={padding} to='/blogs'>blogs</Link>
@@ -134,7 +170,7 @@ const App = () => {
         </div> :
           <div></div>}
 
-      </div>
+      </div> */}
       <Notification />
       <Switch>
         <Route path='/login'>
