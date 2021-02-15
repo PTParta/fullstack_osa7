@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import Users from './components/Users'
 import BlogForm from './components/BlogForm'
 import SingleBlog from './components/SingleBlog'
+import LoginForm from './components/LoginForm'
 import blogService from './services/blogs'
-import loginService from './services/login'
+/* import loginService from './services/login' */
 import { setNotification } from './reducers/notificationReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeBlogs, createBlog, removeBlog, incrementVotesOf } from './reducers/blogReducer'
@@ -18,12 +19,11 @@ import {
   Link,
   //Redirect,
   useRouteMatch,
+  Redirect,
   //useHistory
 } from 'react-router-dom'
 
 const App = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const blogFormRef = useRef()
 
   const dispatch = useDispatch()
@@ -48,29 +48,6 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    console.log('logging in with', username, password)
-
-    try {
-      const user = await loginService.login({
-        username, password,
-      })
-
-      window.localStorage.setItem(
-        'loggedBlogAppUser', JSON.stringify(user)
-      )
-      blogService.setToken(user.token)
-
-      dispatch(initializeUser(user))
-      setUsername('')
-      setPassword('')
-    }
-    catch (exception) {
-      dispatch(setNotification('wrong username or password', 5))
-    }
-  }
 
   const handleLogout = async (event) => {
     event.preventDefault()
@@ -106,45 +83,12 @@ const App = () => {
     dispatch(setNotification(`blog ${blogToBeRemoved[0].title} by ${blogToBeRemoved[0].author} removed`, 5))
   }
 
-  const loginForm = () => (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          username
-          <input
-            id='username'
-            type='text'
-            value={username}
-            name='Username'
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </div>
-        <div>
-          password
-          <input
-            id='password'
-            type='password'
-            value={password}
-            name='Password'
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </div>
-        <button id='login-button' type='submit'>
-          login
-        </button>
-      </form>
-    </div>
-  )
-
   const blogsListed = () => (
     <div>
       <h2>blogs</h2>
       <table>
         <tbody>
           <tr>
-            <td>{user.name} logged in </td>
-            <td><button onClick={handleLogout}>logout</button></td>
           </tr>
         </tbody>
       </table>
@@ -155,7 +99,7 @@ const App = () => {
       </Togglable>
       <Switch>
         <Route path='/blogs/:id'>
-          <SingleBlog blog={blogMatch} likeBlog={likeBlog} user={user} remove={remove}/>
+          <SingleBlog blog={blogMatch} likeBlog={likeBlog} user={user} remove={remove} />
         </Route>
 
 
@@ -175,7 +119,6 @@ const App = () => {
   const match = useRouteMatch('/blogs/:id')
 
   console.log('match', match)
-  //console.log('match.params.id', match.params.id)
   const blogMatch = match
     ? blogs.find(blog => blog.id === match.params.id)
     : null
@@ -183,25 +126,28 @@ const App = () => {
   return (
     <div>
       <div>
-        <Link style={padding} to='/users'>users</Link>
-        <Link style={padding} to='/blogs'>blogs</Link>
+        {user ? <div>
+          <Link style={padding} to='/users'>users</Link>
+          <Link style={padding} to='/blogs'>blogs</Link>
+          {user.name} logged in
+          <button onClick={handleLogout}>logout</button>
+        </div> :
+          <div></div>}
+
       </div>
       <Notification />
-      {/* {user === '' ?
-        loginForm() :
-        <div>
-          {(blogsListed())}
-        </div>} */}
       <Switch>
+        <Route path='/login'>
+          <LoginForm />
+        </Route>
         <Route path='/users'>
-          <Users />
+          {user ? <Users /> : <Redirect to='/login' />}
+        </Route>
+        <Route path='/blogs'>
+          {user ? blogsListed() : <Redirect to='/login' />}
         </Route>
         <Route path='/'>
-          {user === '' ?
-            loginForm() :
-            <div>
-              {(blogsListed())}
-            </div>}
+          {user ? blogsListed() : <Redirect to='/login' />}
         </Route>
       </Switch>
     </div>

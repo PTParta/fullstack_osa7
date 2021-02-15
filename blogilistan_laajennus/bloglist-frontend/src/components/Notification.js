@@ -15,8 +15,8 @@ const Notification = () => {
 
     <div>
       {notification !== '' ?
-      <div style={style}>{notification}</div>:
-      <div></div>}
+        <div style={style}>{notification}</div> :
+        <div></div>}
     </div>
 
   )

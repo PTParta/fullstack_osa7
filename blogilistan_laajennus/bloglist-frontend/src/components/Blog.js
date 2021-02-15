@@ -1,6 +1,6 @@
 /* eslint-disable linebreak-style */
 import React, { useState } from 'react'
-import { Link, Switch, Route, useRouteMatch } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const Blog = ({ blog, likeBlog, user, remove }) => {
   const blogStyle = {
@@ -55,28 +55,3 @@ const Blog = ({ blog, likeBlog, user, remove }) => {
 }
 
 export default Blog
-
-/*  < Switch >
-       <Route path='/users/:id'>
-         <User user={userMatch} />
-       </Route>
-       <Route path='/users'>
-         <h2>Users</h2>
-         <table>
-           <tbody style={{ textAlign: 'left' }}>
-             <tr>
-               <th></th>
-               <th >blogs created</th>
-             </tr>
-             {users.map(user =>
-               <tr key={user.id}>
-                 <th>
-                   <Link to={`/users/${user.id}`}>{user.name}</Link>
-                 </th>
-                 <th>{user.blogs.length}</th>
-               </tr>
-             )}
-           </tbody>
-         </table>
-       </Route>
-     </Switch > */
